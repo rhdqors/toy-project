@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+          crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&display=swap" rel="stylesheet">
+    <title>공연 정보</title>
+    <style>
+        * {
+            font-family: 'Gowun Dodum', sans-serif;
+        }
+
+        .mytitle {
+            width: 100%;
+            height: 250px;
+
+            background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://movie-phinf.pstatic.net/20210715_95/1626338192428gTnJl_JPEG/movie_image.jpg');
+            background-position: center;
+            background-size: cover;
+
+            color: white;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mytitle > button {
+            width: 80px;
+            height: 35px;
+
+            background-color: transparent;
+            color: white;
+
+            border-radius: 50px;
+            border: 1px solid white;
+
+            margin-top: 10px;
+        }
+
+        .mytitle > button:hover {
+            border: 2px solid white;
+        }
+
+
+        .mycards {
+            margin: 20px auto 0px auto;
+            width: 95%;
+            max-width: 1200px;
+
+
+        }
+        header {
+
+            position: fixed;
+            top: 0;
+            /* width: 100% */
+            left: 0;
+            right: 0;
+            height: 50px;
+            padding: 1rem;
+            color: white;
+            background: black;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 50px;
+            z-index: 1;
+            opacity: 0.8;
+            /* 생략 */
+
+        }
+         a:link { color: red; text-decoration: none;
+         }
+
+        a:visited {
+            color: white;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: blue;
+            text-decoration: underline;
+        }
+        .searh_input {
+            border-radius: 50px;
+            border: 1px solid white;
+            width: 250px;
+            text-align: center;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            musicalInfo();
+        });
+        function go_reserve() {
+            window.location.href ='http://ticket.interpark.com/contents/Ranking/RankList?pKind=01011&pCate=&pType=W&pDate=20230206'
+        }
+
+        function musicalInfo() {
+            $.ajax({
+                type: 'GET',
+                url: '/musicalInfo',
+                data: {},
+                success: function (response) {
+                    let rows = response['musicalInfo']
+                    for (let i = 0; i < 50; i++) {
+                        let image = rows[i]['image']
+                        let name = rows[i]['name']
+                        let content = rows[i]['content']
+
+
+                        let temp_html = `        <div class="col">
+                                                    <div class="card h-100">
+                                                        <img src="${image}"
+                                                             class="card-img-top">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title"> ${name} </h5>
+                                                            <p class="card-text"> album : ${content}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+                        $('#cards-box').append(temp_html)
+
+                    }
+                }
+            })
+        }
+        function search(value) {
+        $('#cards-box').empty()
+        let search = $('#search_name').val()
+
+        $.ajax({
+            type: 'GET',
+            url: '/musicalsearch_list',
+            data: {},
+            success: function (response) {
+                let rows = response['musicals']
+                console.log(rows)
+
+                for (let i=0; i < rows.length; i++) {
+                    let image = rows[i]['image']
+                    let name = rows[i]['name'].toLowerCase()
+                    let content = rows[i]['content']
+
+                    // console.log(name.includes('<'),)
+                    name_word = name.split(' ')
+                    // console.log(name_word)  //결과: 배열화
+
+                    // const Result = name_word.filter((response) => {});
+                    let arrResult = [];
+                    for (let i = 0; i < rows.length; i++) {
+                        if (rows[i].name.includes(value)) {
+                            arrResult.push(rows[i])
+                        }
+                    }
+                    // console.log(arrResult)
+
+                    // arr = name_word.indexOf('<')
+                    // console.log(arr)    // -1 리턴 - 실패
+
+                    // arr1 = name_word[1]
+                    // // let arr2 = name_word.split(/[<,>]/); 에러
+                    // // if (arr1)
+                    // console.log(arr1)   //결과: [1]번 배열의 값 출력
+
+                    // arr2 = arr1.split('<')
+                    // console.log(arr2)
+
+                    if (search == name_word) {
+                            let temp_html = `<div class="col">
+                                                    <div class="card h-100">
+                                                        <img src="${image}"
+                                                             class="card-img-top">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title"> ${name} </h5>
+                                                            <p class="card-text"> album : ${content}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+                            $('#cards-box').append(temp_html)
+                            break
+                        }
+                    for (let j=0; j<name.length; j++) {
+                            //      차례대로 앞글자부터 하나씩 검색
+                        name_str = name.slice(5, j) //야매로 만들어 놓음;;
+                        console.log(name_str)
+                        if (search == name_str) {
+                            let temp_html = `<div class="col">
+                                                    <div class="card h-100">
+                                                        <img src="${image}"
+                                                             class="card-img-top">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title"> ${name} </h5>
+                                                            <p class="card-text"> album : ${content}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+                            $('#cards-box').append(temp_html)
+                            break
+                        }
+                    //            이름 전체 검색
+                    if (search == name) {
+                        let temp_html = `<div class="col">
+                                                    <div class="card h-100">
+                                                        <img src="${image}"
+                                                             class="card-img-top">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title"> ${name} </h5>
+                                                            <p class="card-text"> album : ${content}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>`
+                        $('#cards-box').append(temp_html)
+                        break
+                    }
+                    }
+                }
+                if (search == '') {
+                    alert('검색어를 입력하세요')
+                }
+            }
+        })
+            return arrResult;
+    }
+    // console.log(search($('#search_name').val()))
+    </script>
+</head>
+<body>
+<div class="mytitle">
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/main"><h2>🏠</h2></a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="movie_List">영화</a>
+                        </li>
+                        <li class="nav-item">
+                             <a class="nav-link active" aria-current="page" href="book_List">도서</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="music_List">음악</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="musical_List">공연</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="board">게시판</a>
+                        </li>
+                    </ul>
+<!--                    <form class="d-flex" role="search">-->
+<!--                        <input class="form-control me-2" type="search" placeholder="검색" aria-label="Search">-->
+<!--                        <button class="btn btn-outline-success" type="submit">Search</button>-->
+<!--                    </form>-->
+                    <div class="login">
+                        <button class="btn btn-outline-success" type="button" onclick = "location.href = '/login'">login</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <h1>공연 목록</h1>
+    <input id="search_name" type="text"  placeholder="검색어를 입력하세요.">
+    <button onclick="search()">검색</button>
+<!--    <button>click</button>-->
+</div>
+
+<div class="mycards" id="my-box">
+    <div class="row row-cols-1 row-cols-md-4 g-4" id="cards-box">
+
+    </div>
+</div>
+</body>
+</html>
